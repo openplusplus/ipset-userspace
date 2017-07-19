@@ -476,3 +476,33 @@ int hash_net6_destory(struct hash_net6 *h)
 	return 0;
 }
 
+int hash_net6_flush(struct hash_net6 *h)
+{
+	u32 i;
+	struct hbucket *n;
+
+	if(NULL == h)
+	{
+		return -1;
+	}
+
+	int h_size = jhash_size(h->table->htable_bits);
+	for(i=0;i<h_size;i++)
+	{
+		n = &h->table->bucket[i];
+		if(NULL != n && NULL != n->value)
+		{
+			memset(n->value,0,sizeof(struct hash_net6_elem) * HBUCKET_INIT_ELEM);
+			n->size = HBUCKET_INIT_ELEM;
+			n->pos = 1;
+			n->used = 0;
+		}
+	}
+
+	memset(h->nets,0,sizeof(h->nets));
+	h->elements = 0;
+	
+	return 0;
+}
+
+

@@ -4,8 +4,11 @@
 #include <string.h>
 
 #define MAX_RANGE 0x0000FFFF
-#define UINT_MAX	(~0U)
 #define IP_SET_MAXNAMELEN 32	/* set names and set typenames */
+
+#ifndef UINT_MAX
+#define UINT_MAX	(~0U)
+#endif
 
 #define initval_t uint32_t
 
@@ -69,7 +72,7 @@ struct ip_set {
 	void *data;
 };
 
-#define DEBUG_IPSET
+//#define DEBUG_IPSET
 #ifdef DEBUG_IPSET
 #define DP(format, args...) 					\
 	do {							\

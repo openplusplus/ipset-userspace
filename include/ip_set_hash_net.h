@@ -144,6 +144,8 @@ int hash_net4_add_ip_timeout(struct hash_net4 *h,u32 ip,u32 timeout);
 
 int hash_net4_del(struct hash_net4 *h,struct hash_net4_elem* elem);
 int hash_net4_del_ip(struct hash_net4 *h,u32 ip);
+int hash_net4_del_net(struct hash_net4 *h,u32 ip,u32 cidr);
+
 
 int hash_net4_test(struct hash_net4 *h,struct hash_net4_elem* elem);
 int hash_net4_test_ip(struct hash_net4 *h,u32 ip);
@@ -152,6 +154,7 @@ int hash_net4_list(struct hash_net4 *h);
 
 int hash_net4_expire(struct hash_net4 *h);
 int hash_net4_destory(struct hash_net4 *h);
+int hash_net4_flush(struct hash_net4 *h);
 
 
 /********************************************IPV6******************************/
@@ -171,5 +174,7 @@ int hash_net6_test_ip(struct hash_net6 *h,void* ipv6);
 
 int hash_net6_expire(struct hash_net6 *h);
 int hash_net6_destory(struct hash_net6 *h);
+int hash_net6_flush(struct hash_net6 *h);
+
 
 #endif

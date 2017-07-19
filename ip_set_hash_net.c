@@ -1,14 +1,4 @@
-﻿/*******************************************************************************
-  版权说明：
-  文 件 名: ip_set_hash_net.c
-  创 建 人: lux               
-  创建日期: 2017-5-27
-  文件描述: ipset ipv4地址集接口实现文件，支持地址范围，网络地址，单个地址
-  其    它: 
-  修改记录: 
-  1. 2017-5-27 create by lux
-*******************************************************************************/
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -392,6 +382,25 @@ int hash_net4_del_ip(struct hash_net4 *h,u32 ip)
 	return ret;
 }
 
+int hash_net4_del_net(struct hash_net4 *h,u32 ip,u32 cidr)
+{
+	struct hash_net4_elem elem;
+	
+	if(NULL == h)
+	{
+		return -1;
+	}
+
+	memset(&elem,0,sizeof(struct hash_net4_elem));
+	elem.ip = ip;
+	elem.cidr = cidr;
+
+	int ret = hash_net4_del(h,&elem);
+
+	return ret;
+}
+
+
 
 int hash_net4_test(struct hash_net4 *h,struct hash_net4_elem* elem)
 {
@@ -426,8 +435,7 @@ int hash_net4_test(struct hash_net4 *h,struct hash_net4_elem* elem)
 		hash_net4_data_netmask(&tmp,h->nets[j].cidr[0]);
 		ipv4 = tmp.ip;
 
-		//DP("***hash_net4_test2: ipv4=%s cidr=%u\n",
-			//inet_ntoa(*(struct in_addr*)(&ipv4)),tmp.cidr);
+		
 		
 		key = jhash_1word(ipv4, h->initval)&jhash_mask(h->table->htable_bits);
 		n =  &h->table->bucket[key];
@@ -436,6 +444,9 @@ int hash_net4_test(struct hash_net4 *h,struct hash_net4_elem* elem)
 			ret = -1;
 			break;
 		}
+
+		//DP("***hash_net4_test2: ipv4=%s cidr=%u key=%u\n",
+			//inet_ntoa(*(struct in_addr*)(&ipv4)),tmp.cidr,key);
 	
 		array =  (struct hash_net4_elem *)n->value;
 		for (i = 0; i<n->pos; i++)
@@ -558,6 +569,37 @@ int hash_net4_expire(struct hash_net4 *h)
 
 	return 0;
 }
+
+int hash_net4_flush(struct hash_net4 *h)
+{
+	u32 i;
+	struct hbucket *n;
+
+	if(NULL == h)
+	{
+		return -1;
+	}
+
+	int h_size = jhash_size(h->table->htable_bits);
+	for(i=0;i<h_size;i++)
+	{
+		n = &h->table->bucket[i];
+		if(NULL != n && NULL != n->value)
+		{
+			memset(n->value,0,sizeof(struct hash_net4_elem)*HBUCKET_INIT_ELEM);
+			n->used = 0;
+			n->size = HBUCKET_INIT_ELEM;
+			n->pos = 1;
+		}
+	}
+
+	memset(h->nets,0,sizeof(h->nets));
+	DP("hash_net4_flush sizeof(h->nets) = <%lu>\n",sizeof(h->nets));
+	h->elements = 0;
+	
+	return 0;
+}
+
 
 int hash_net4_destory(struct hash_net4 *h)
 {
