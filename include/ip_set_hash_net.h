@@ -1,21 +1,11 @@
 #ifndef __IP_SET_HASH_NET_H
 #define __IP_SET_HASH_NET_H
 
-#include <math.h>
 #include "ip_set.h"
 #include "ip_set_jhash.h"
 #include "nf_inet_addr.h"
 
-
 //#define htype hash_net4
-
-#define HTABLE_DEFAULT_SIZE		4096
-#define HTABLE_MAX_BITS			30
-#define HTABLE_BUCKET_MAX_CNT ({ pow(2,HTABLE_MAX_BITS); })
-
-#define BUCKET_ELEM_MAX_CNT 	32
-#define HBUCKET_INIT_ELEM		8
-
 
 #define IPSET_NET_COUNT 2
 #define NLEN 			32
@@ -37,25 +27,6 @@ struct hash_net6_elem {
 	u8 nomatch;
 	u8 cidr;
 	unsigned long lifetime;
-};
-
-/* A hash bucket */
-struct hbucket {
-	//struct rcu_head rcu;	/* for call_rcu_bh */
-	u32 used;
-	u8 size;		/* size of the array */
-	u8 pos;			/* position of the first free entry */
-	//unsigned char value[0]	/* the array of the values */
-	char* value;
-};
-
-struct htable {
-	u32 ref;		/* References for resizing */
-	u32 uref;		/* References for dumping */
-	u8 htable_bits;		/* size of hash table == 2^htable_bits */
-	u32 htable_size;
-	//struct hbucket *bucket[0]; /* hashtable buckets */
-	struct hbucket *bucket;
 };
 
 struct net_prefixes {
@@ -120,17 +91,6 @@ static inline u32 hkey(const u32 *data,u32 initval,u8 htable_bits)
 	const u32 *__k = (const u32 *)data;			
 	u32 __l = HKEY_DATALEN / sizeof(u32);								
 	return jhash2(__k, __l, initval) & jhash_mask(htable_bits);	
-}
-
-static inline u32 get_hashbits(u32 hash_size)
-{
-    u32 bits = 0;
-    while(hash_size >= 2)
-    {
-        hash_size = hash_size/2;
-        bits++;
-    }
-    return bits;
 }
 
 int hash_net4_create(struct hash_net4 **h,u32 htable_size, u32 flags);

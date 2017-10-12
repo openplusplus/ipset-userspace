@@ -455,7 +455,7 @@ int hash_net4_test(struct hash_net4 *h,struct hash_net4_elem* elem)
 				continue;
 			if(hash_net4_data_equal(&array[i],&tmp,NULL))
 			{
-				if(array[i].lifetime != 0 && array[i].lifetime < time(NULL))
+				if(array[i].lifetime != 0 && array[i].lifetime <= time(NULL))
 				{
 					DP("hash_net4_test(key=%u) timeout,so del ip=%s\n",
 						key,inet_ntoa(*(struct in_addr*)(&array[i].ip)));
@@ -516,7 +516,7 @@ int hash_net4_list(struct hash_net4 *h)
 		{
 			if (test_bit(j, &n->used))
 			{
-				DP("bucket[%u] elem[%u] ip=%u.%u.%u.%u cidr=%u\n",
+				printf("hash_net4 bucket[%u] elem[%u] ip=%u.%u.%u.%u cidr=%u\n",
 					i,j,NIPQUAD(array[j].ip),array[j].cidr);
 			}
 		}
@@ -547,7 +547,7 @@ int hash_net4_expire(struct hash_net4 *h)
 		{
 			if (test_bit(j, &n->used))
 			{				
-				if(array[j].lifetime != 0 && array[j].lifetime < time(NULL))
+				if(array[j].lifetime != 0 && array[j].lifetime <= time(NULL))
 				{
 					DP("bucket[%u] elem[%u] timeout delete: ip=%u.%u.%u.%u cidr=%u\n",
 						i,j,NIPQUAD(array[j].ip),array[j].cidr);

@@ -1,10 +1,21 @@
 ﻿#ifndef _IP_SET_H
 #define _IP_SET_H
 
+#include <math.h>
 #include <string.h>
 
-#define MAX_RANGE 0x0000FFFF
-#define IP_SET_MAXNAMELEN 32	/* set names and set typenames */
+#define MAX_RANGE 			0x0000FFFF
+#define IP_SET_MAXNAMELEN 	32	/* set names and set typenames */
+#define ETH_ALEN			6
+
+
+#define HTABLE_DEFAULT_SIZE		4096
+#define HTABLE_MAX_BITS			30
+#define HTABLE_BUCKET_MAX_CNT ({ pow(2,HTABLE_MAX_BITS); })
+
+#define BUCKET_ELEM_MAX_CNT 	32
+#define HBUCKET_INIT_ELEM		8
+
 
 #ifndef UINT_MAX
 #define UINT_MAX	(~0U)
@@ -29,6 +40,24 @@ typedef uint16_t ip_set_id_t;
 
 typedef int bool;
 
+/* A hash bucket */
+struct hbucket {
+	//struct rcu_head rcu;	/* for call_rcu_bh */
+	u32 used;
+	u8 size;		/* size of the array */
+	u8 pos;			/* position of the first free entry */
+	//unsigned char value[0]	/* the array of the values */
+	char* value;
+};
+
+struct htable {
+	u32 ref;		/* References for resizing */
+	u32 uref;		/* References for dumping */
+	u8 htable_bits;		/* size of hash table == 2^htable_bits */
+	u32 htable_size;
+	//struct hbucket *bucket[0]; /* hashtable buckets */
+	struct hbucket *bucket;
+};
 
 
 /* A generic IP set */
@@ -159,6 +188,18 @@ static inline void clear_bit(unsigned long nr, volatile unsigned int *addr)
 	mask = 1 << (nr & 31);
 	*a &= ~mask;
 }
+
+static inline unsigned int get_hashbits(unsigned int hash_size)
+{
+    u32 bits = 0;
+    while(hash_size >= 2)
+    {
+        hash_size = hash_size/2;
+        bits++;
+    }
+    return bits;
+}
+
 
 #endif
 

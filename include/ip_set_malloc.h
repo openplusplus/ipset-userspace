@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 static size_t max_malloc_size = 0, max_page_size = 0;
-static size_t default_max_malloc_size = 131072;			/* Guaranteed: slab.c */
+//static size_t default_max_malloc_size = 131072;			/* Guaranteed: slab.c */
 
 static inline int init_max_page_size(void)
 {
